@@ -1,7 +1,15 @@
+import { Grid } from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
+import { getRooms } from "../api";
+import RoomSkeleton from "../components/RoomSkeleton";
 import Room from "../components/Room";
-import { Box, Grid, Skeleton, SkeletonText } from "@chakra-ui/react";
+import { IRoomList } from "@/types";
 
 export default function Home() {
+  const { isLoading, data } = useQuery<IRoomList[]>({
+    queryKey: ["rooms"],
+    queryFn: getRooms,
+  });
   return (
     <Grid
       mt={10}
@@ -18,13 +26,32 @@ export default function Home() {
         xl: "repeat(7, 1fr)",
       }}
     >
-      <Box>
-        <Skeleton h={200} rounded={"3xl"} mb={2.5} />
-        <SkeletonText noOfLines={1} mb={1} h={"18px"} />
-        <SkeletonText noOfLines={1} mb={1} h={"15px"} />
-        <SkeletonText noOfLines={1} h={"13px"} w={"50%"} />
-      </Box>
-      <Room />
+      {isLoading ? (
+        <>
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+          <RoomSkeleton />
+        </>
+      ) : null}
+      {data?.map((room) => (
+        <Room
+          key={room.pk}
+          pk={room.pk}
+          imageUrl={room.photos[0].file}
+          name={room.name}
+          rating={room.rating}
+          city={room.city}
+          country={room.country}
+          price={room.price}
+        />
+      ))}
     </Grid>
   );
 }

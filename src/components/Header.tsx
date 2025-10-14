@@ -3,6 +3,7 @@ import { FaAirbnb } from "react-icons/fa";
 import LoginDialog from "./LoginDialog";
 import SignUpDialog from "./SignUpDialog";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const logoColor = useColorModeValue("red.500", "red.200");
@@ -17,7 +18,9 @@ export default function Header() {
       borderBottomWidth={1}
     >
       <Box color={logoColor}>
-        <FaAirbnb size={"36px"} />
+        <Link to={"/"}>
+          <FaAirbnb size={"36px"} />
+        </Link>
       </Box>
       <HStack>
         <ColorModeButton />
