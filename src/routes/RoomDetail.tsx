@@ -5,8 +5,6 @@ import { IReview, IRoomDetail } from "@/types";
 import {
   Avatar,
   Box,
-  Container,
-  Flex,
   Grid,
   GridItem,
   Heading,
@@ -79,12 +77,16 @@ export default function RoomDetail() {
             <HStack w={"100%"} justifyContent={"flex-start"}>
               <Text>
                 {data?.rooms} room
-                {data?.rooms == undefined ? "" : data?.rooms > 1 ? "s" : ""}
+                {data?.rooms === undefined ? "" : data?.rooms > 1 ? "s" : ""}
               </Text>
               <Text>ㆍ</Text>
               <Text>
                 {data?.toilets} toilet
-                {data?.toilets == undefined ? "" : data?.toilets > 1 ? "s" : ""}
+                {data?.toilets === undefined
+                  ? ""
+                  : data?.toilets > 1
+                  ? "s"
+                  : ""}
               </Text>
             </HStack>
           </Skeleton>
@@ -103,7 +105,7 @@ export default function RoomDetail() {
               <Text>ㆍ</Text>
               <Text>
                 {reviewsData?.length} review
-                {reviewsData?.length == undefined
+                {reviewsData?.length === undefined
                   ? ""
                   : reviewsData?.length > 1
                   ? "s"

@@ -3,7 +3,60 @@ import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: "http://127.0.0.1:8000/api/v1/",
+  withCredentials: true,
+  xsrfCookieName: "csrftoken",
+  xsrfHeaderName: "X-CSRFTOKEN",
+  withXSRFToken: true,
 });
+
+export const getMe = () =>
+  axiosInstance.get("users/me").then((response) => response.data);
+
+export const logOut = () =>
+  axiosInstance.post("users/log-out").then((response) => response.data);
+
+export const githubLogIn = (code: string) =>
+  axiosInstance
+    .post("users/github", { code })
+    .then((response) => response.status);
+
+export const kakaoLogIn = (code: string) =>
+  axiosInstance
+    .post("users/kakao", { code })
+    .then((response) => response.status);
+
+export interface IUsernameLoginVariables {
+  username: string;
+  password: string;
+}
+
+export interface IUsernameLoginSuccess {
+  ok: string;
+}
+
+export interface IUsernameLoginError {
+  error: string;
+}
+
+export interface ISignUpVariables {
+  username: string;
+  name: string;
+  password: string;
+  email: string;
+}
+
+export const usernameLogIn = ({
+  username,
+  password,
+}: IUsernameLoginVariables) =>
+  axiosInstance
+    .post("users/log-in", { username, password })
+    .then((response) => response.data);
+
+export const signUp = ({ username, name, password, email }: ISignUpVariables) =>
+  axiosInstance
+    .post("users/sign-up", { username, name, password, email })
+    .then((response) => response.data);
 
 export const getRooms = () =>
   axiosInstance.get("rooms/").then((response) => response.data);
