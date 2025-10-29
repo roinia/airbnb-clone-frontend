@@ -1,4 +1,4 @@
-import { Avatar, Box, HStack, Menu, Portal } from "@chakra-ui/react";
+import { Avatar, Box, HStack, Menu, Portal, Separator } from "@chakra-ui/react";
 import { FaAirbnb } from "react-icons/fa";
 import LoginDialog from "./LoginDialog";
 import SignUpDialog from "./SignUpDialog";
@@ -73,6 +73,16 @@ export default function Header() {
                 <Portal>
                   <Menu.Positioner>
                     <Menu.Content>
+                      {user?.is_host ? (
+                        <>
+                          <Link to="/rooms/upload">
+                            <Menu.Item value="uploadRoom">
+                              Upload Room
+                            </Menu.Item>
+                          </Link>
+                          <Separator />
+                        </>
+                      ) : null}
                       <Menu.Item value="logout" onClick={onLogOut}>
                         Logout
                       </Menu.Item>

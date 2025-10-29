@@ -72,3 +72,50 @@ export const getRoomReviews = ({ queryKey }: QueryFunctionContext) => {
     .get(`rooms/${roomPk}/reviews`)
     .then((response) => response.data);
 };
+
+export const getAmenities = () =>
+  axiosInstance.get("rooms/amenities/").then((response) => response.data);
+
+export const getCategories = () =>
+  axiosInstance.get("categories/").then((response) => response.data);
+
+export interface IUploadRoomVariables {
+  name: string;
+  country: string;
+  city: string;
+  price: number;
+  rooms: number;
+  toilets: number;
+  description: string;
+  address: string;
+  pet_friendly: boolean;
+  kind: string;
+  amenities: number[];
+  category: number;
+}
+
+export const uploadRoom = (variables: IUploadRoomVariables) =>
+  axiosInstance.post("rooms/", variables).then((response) => response.data);
+
+export const uploadImage = (files: FileList) => {
+  const formData = new FormData();
+  formData.append("file", files[0]);
+  return axiosInstance
+    .post(`medias/photos`, formData)
+    .then((response) => response.data);
+};
+
+export interface ICreatePhotoVariables {
+  roomPk: string;
+  file: string;
+  description: string;
+}
+
+export const createPhoto = ({
+  roomPk,
+  file,
+  description,
+}: ICreatePhotoVariables) =>
+  axiosInstance
+    .post(`rooms/${roomPk}/photos`, { file, description })
+    .then((response) => response.data);

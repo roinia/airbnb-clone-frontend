@@ -1,7 +1,15 @@
-import { Box, Grid, HStack, Image, Text, VStack } from "@chakra-ui/react";
-import { FaRegHeart, FaStar } from "react-icons/fa";
+import {
+  Box,
+  Button,
+  Grid,
+  HStack,
+  Image,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { FaCamera, FaRegHeart, FaStar } from "react-icons/fa";
 import { useColorModeValue } from "./ui/color-mode";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface IRoomProps {
   pk: number;
@@ -11,6 +19,7 @@ interface IRoomProps {
   city: string;
   country: string;
   price: number;
+  isOwner: boolean;
 }
 
 export default function Room({
@@ -21,8 +30,14 @@ export default function Room({
   city,
   country,
   price,
+  isOwner,
 }: IRoomProps) {
   const gray = useColorModeValue("gray.600", "gray.300");
+  const navigate = useNavigate();
+  const onCamaraClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    navigate(`/rooms/${pk}/photos`);
+  };
   return (
     <Link to={`/rooms/${pk}`}>
       <VStack alignItems={"flex-start"} gap={0}>
@@ -32,17 +47,28 @@ export default function Room({
           rounded={"3xl"}
           mb={2}
           h={"25vh"}
+          w={"100%"}
         >
-          <Image minH={200} src={imageUrl} />
-          <Box
-            cursor={"pointer"}
+          {imageUrl ? (
+            <Image minH={200} src={imageUrl} />
+          ) : (
+            <Box bg={"gray.400"} minH={200} w={"100%"} h={"100%"} />
+          )}
+          <Button
             position={"absolute"}
-            top={3}
-            right={3}
+            top={0}
+            right={0}
+            p={0}
+            variant={"plain"}
             color={"white"}
+            onClick={onCamaraClick}
           >
-            <FaRegHeart size={"20px"} />
-          </Box>
+            {isOwner ? (
+              <FaCamera size={"20px"} />
+            ) : (
+              <FaRegHeart size={"20px"} />
+            )}
+          </Button>
         </Box>
         <Grid gap={1} templateColumns={"1fr 40px"}>
           <Text
