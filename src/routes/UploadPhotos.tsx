@@ -17,7 +17,6 @@ import { LuFileImage, LuX } from "react-icons/lu";
 import { useMutation } from "@tanstack/react-query";
 import { createPhoto, uploadImage } from "../api";
 import { toaster } from "../components/ui/toaster";
-import { error } from "console";
 
 interface IForm {
   file: FileList;

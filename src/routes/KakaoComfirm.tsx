@@ -40,6 +40,7 @@ export default function KakaoConfirm() {
 
   useEffect(() => {
     confirmLogin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

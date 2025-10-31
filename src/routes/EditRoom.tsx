@@ -13,6 +13,7 @@ import {
   Input,
   InputGroup,
   NativeSelect,
+  Spinner,
   Text,
   Textarea,
   VStack,
@@ -20,26 +21,29 @@ import {
 import { FaBed, FaToilet } from "react-icons/fa";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  editRoom,
   getAmenities,
   getCategories,
+  getRoom,
   IUploadRoomVariables,
-  uploadRoom,
 } from "../api";
 import { IAmenity, ICategory, IRoomDetail } from "@/types";
 import { Controller, useForm } from "react-hook-form";
 import { toaster } from "../components/ui/toaster";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
-export default function UploadRoom() {
+export default function EditRoom() {
   useProtectedPage();
   useHostOnlyPage();
 
+  const { roomPk } = useParams();
   const navigate = useNavigate();
   const mutation = useMutation({
-    mutationFn: uploadRoom,
+    mutationFn: editRoom,
     onSuccess: (data: IRoomDetail) => {
       toaster.create({
-        description: "Room is created",
+        description: "Room is updated",
         type: "success",
       });
       navigate(`/rooms/${data.id}`);
@@ -52,6 +56,12 @@ export default function UploadRoom() {
     },
   });
 
+  const { data: room, isLoading: isRoomLoading } = useQuery<IRoomDetail>({
+    queryKey: ["Room", roomPk],
+    queryFn: getRoom,
+    gcTime: 0,
+  });
+
   const { data: amenities } = useQuery<IAmenity[]>({
     queryKey: ["amenities"],
     queryFn: getAmenities,
@@ -62,27 +72,46 @@ export default function UploadRoom() {
     queryFn: getCategories,
   });
 
-  const { register, control, handleSubmit } = useForm<IUploadRoomVariables>({
-    defaultValues: {
-      pet_friendly: false,
-    },
-  });
+  const { register, control, handleSubmit } = useForm<IUploadRoomVariables>();
 
   const onSubmit = (data: IUploadRoomVariables) => {
     mutation.mutate(data);
   };
 
+  if (isRoomLoading) {
+    return (
+      <>
+        <VStack justifyContent={"center"} mt={40}>
+          <Heading>Loading..</Heading>
+          <Spinner size={"xl"} mt={15} />
+        </VStack>
+      </>
+    );
+  }
+
   return (
     <Box pb={40} mt={5} px={{ base: 10, lg: 40 }}>
+      <Helmet>
+        <title>Edit Room</title>
+      </Helmet>
       <Container>
         <Heading textAlign={"center"}>Upload Room</Heading>
         <VStack gap={5} mt={5} as={"form"} onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            {...register("pk", { required: true })}
+            type="hidden"
+            defaultValue={roomPk}
+          />
           <Field.Root required>
             <Field.Label>
               Name
               <Field.RequiredIndicator />
             </Field.Label>
-            <Input {...register("name", { required: true })} type="text" />
+            <Input
+              {...register("name", { required: true })}
+              type="text"
+              defaultValue={room?.name}
+            />
             <Field.HelperText>Write the name of your room</Field.HelperText>
           </Field.Root>
           <Field.Root required>
@@ -90,21 +119,33 @@ export default function UploadRoom() {
               Country
               <Field.RequiredIndicator />
             </Field.Label>
-            <Input {...register("country", { required: true })} type="text" />
+            <Input
+              {...register("country", { required: true })}
+              type="text"
+              defaultValue={room?.country}
+            />
           </Field.Root>
           <Field.Root required>
             <Field.Label>
               City
               <Field.RequiredIndicator />
             </Field.Label>
-            <Input {...register("city", { required: true })} type="text" />
+            <Input
+              {...register("city", { required: true })}
+              type="text"
+              defaultValue={room?.city}
+            />
           </Field.Root>
           <Field.Root required>
             <Field.Label>
               Address
               <Field.RequiredIndicator />
             </Field.Label>
-            <Input {...register("address", { required: true })} type="text" />
+            <Input
+              {...register("address", { required: true })}
+              type="text"
+              defaultValue={room?.address}
+            />
           </Field.Root>
           <Field.Root required>
             <Field.Label>
@@ -115,6 +156,7 @@ export default function UploadRoom() {
               <Input
                 {...register("price", { required: true })}
                 type="number"
+                defaultValue={room?.price}
                 min={0}
               />
             </InputGroup>
@@ -128,6 +170,7 @@ export default function UploadRoom() {
               <Input
                 {...register("rooms", { required: true })}
                 type="number"
+                defaultValue={room?.rooms}
                 min={0}
               />
             </InputGroup>
@@ -141,6 +184,7 @@ export default function UploadRoom() {
               <Input
                 {...register("toilets", { required: true })}
                 type="number"
+                defaultValue={room?.toilets}
                 min={0}
               />
             </InputGroup>
@@ -150,11 +194,15 @@ export default function UploadRoom() {
               Description
               <Field.RequiredIndicator />
             </Field.Label>
-            <Textarea {...register("description", { required: true })} />
+            <Textarea
+              {...register("description", { required: true })}
+              defaultValue={room?.description}
+            />
           </Field.Root>
           <Controller
             name="pet_friendly"
             control={control}
+            defaultValue={room?.pet_friendly}
             render={({ field }) => (
               <Field.Root>
                 <Checkbox.Root checked={field.value} onChange={field.onChange}>
@@ -175,7 +223,10 @@ export default function UploadRoom() {
                   <Field.RequiredIndicator />
                 </Field.Label>
                 <NativeSelect.Root onChange={field.onChange}>
-                  <NativeSelect.Field placeholder="Select a kind">
+                  <NativeSelect.Field
+                    placeholder="Select a kind"
+                    defaultValue={room?.kind}
+                  >
                     <option value="enter_place">Entire Place</option>
                     <option value="private_room">Private Room</option>
                     <option value="shared_room">Shared Room</option>
@@ -191,31 +242,40 @@ export default function UploadRoom() {
           <Controller
             name="category"
             control={control}
-            render={({ field }) => (
-              <Field.Root required>
-                <Field.Label>
-                  Category of room
-                  <Field.RequiredIndicator />
-                </Field.Label>
-                <NativeSelect.Root onChange={field.onChange}>
-                  <NativeSelect.Field placeholder="Select a category">
-                    {categories?.map((category) => (
-                      <option key={category.pk} value={category.pk}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-                <Field.HelperText>
-                  What category describes your room?
-                </Field.HelperText>
-              </Field.Root>
-            )}
+            render={({ field }) => {
+              return (
+                <Field.Root required>
+                  <Field.Label>
+                    Category of room
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <NativeSelect.Root onChange={field.onChange}>
+                    <NativeSelect.Field
+                      placeholder="Select a category"
+                      defaultValue={room?.category.pk}
+                    >
+                      {categories?.map((category) => (
+                        <option key={category.pk} value={category.pk}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                  <Field.HelperText>
+                    What category describes your room?
+                  </Field.HelperText>
+                </Field.Root>
+              );
+            }}
           />
           <Fieldset.Root>
             <Fieldset.Legend>Amenities</Fieldset.Legend>
-            <CheckboxGroup>
+            <CheckboxGroup
+              defaultValue={room?.amenities.map((amenity) =>
+                amenity.pk.toString()
+              )}
+            >
               <Fieldset.Content>
                 <Grid templateColumns={"1fr 1fr"} w={"100%"} gap={5}>
                   {amenities?.map((amenity) => (
@@ -248,7 +308,7 @@ export default function UploadRoom() {
             w={"100%"}
             mt={10}
           >
-            Upload Room
+            Update Room
           </Button>
         </VStack>
       </Container>

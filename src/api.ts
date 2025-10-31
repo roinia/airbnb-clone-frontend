@@ -80,6 +80,7 @@ export const getCategories = () =>
   axiosInstance.get("categories/").then((response) => response.data);
 
 export interface IUploadRoomVariables {
+  pk: number;
   name: string;
   country: string;
   city: string;
@@ -96,6 +97,11 @@ export interface IUploadRoomVariables {
 
 export const uploadRoom = (variables: IUploadRoomVariables) =>
   axiosInstance.post("rooms/", variables).then((response) => response.data);
+
+export const editRoom = (variables: IUploadRoomVariables) =>
+  axiosInstance
+    .put(`rooms/${variables.pk}`, variables)
+    .then((response) => response.data);
 
 export const uploadImage = (files: FileList) => {
   const formData = new FormData();
@@ -119,3 +125,38 @@ export const createPhoto = ({
   axiosInstance
     .post(`rooms/${roomPk}/photos`, { file, description })
     .then((response) => response.data);
+
+export const checkBooking = ({ queryKey }: QueryFunctionContext) => {
+  const [_, roomPk, dates] = queryKey;
+  if (dates) {
+    if (Array.isArray(dates)) {
+      const [firstDate, secondDate] = dates;
+
+      if (firstDate != null && secondDate != null) {
+        const adjustedFirstTimestamp =
+          firstDate.getTime() - firstDate.getTimezoneOffset() * 60 * 1000;
+        const adjustedFirstDate = new Date(adjustedFirstTimestamp);
+
+        const adjustedSecondTimestamp =
+          secondDate.getTime() - secondDate.getTimezoneOffset() * 60 * 1000;
+        const adjustedSecondDate = new Date(adjustedSecondTimestamp);
+
+        const checkIn = adjustedFirstDate
+          .toJSON()
+          .split("T")[0]
+          .replaceAll("-", "");
+        const checkOut = adjustedSecondDate
+          .toJSON()
+          .split("T")[0]
+          .replaceAll("-", "");
+
+        return axiosInstance
+          .get(
+            `rooms/${roomPk}/bookings/check?check_in=${checkIn}&check_out=${checkOut}`
+          )
+          .then((response) => response.data.result);
+      }
+    }
+  }
+  return {};
+};

@@ -7,6 +7,7 @@ import GithubConfirm from "./routes/GithubComfirm";
 import KakaoConfirm from "./routes/KakaoComfirm";
 import UploadRoom from "./routes/UploadRoom";
 import UploadPhotos from "./routes/UploadPhotos";
+import EditRoom from "./routes/EditRoom";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: "", element: <Home /> },
       { path: "rooms/upload", element: <UploadRoom /> },
       { path: "rooms/:roomPk", element: <RoomDetail /> },
+      { path: "rooms/:roomPk/edit", element: <EditRoom /> },
       { path: "rooms/:roomPk/photos", element: <UploadPhotos /> },
       {
         path: "social",
